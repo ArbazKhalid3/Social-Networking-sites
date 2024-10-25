@@ -1,0 +1,251 @@
+#include <iostream>
+using namespace std;
+
+class Post {
+private:
+    string message;
+    string sharewith;
+    int date;
+    int id;
+    Post* next;
+    Post* prev;
+public:
+    Post(string message, string sharewith, int date,int id){
+        this->message=message;
+        this->sharewith=sharewith;
+        this->id=id;
+        this->date=date;
+        this->next=NULL;
+        this->prev=NULL;
+    }
+    
+   string getMessage() {
+    return message;
+}
+   void setMessage(string message){
+       this->message=message;
+   }
+    string getSharewith(){
+        return sharewith;
+    }
+    void setSharewith(string sharewith){
+        this->sharewith=sharewith;
+    }
+    int getId(){
+        return id;
+    }
+    void setId(int id){
+        this->id=id;
+    }
+    int getDate(){
+        return date;
+    }
+    void setDate(int date){
+        this->date=date;
+    }
+    void setNext(Post* next){
+        this->next=next;
+    }
+    void setPrev(Post* prev){
+        this->prev=prev;
+    }
+    Post* getNext(){
+        return next;
+    }
+    Post* getPrev() {
+        return prev;
+    }
+
+
+};
+class SocialNetwork {
+  private:
+    Post* head;
+    Post* tail;
+    int nextPostId;  
+public:
+SocialNetwork(){
+    this->head=NULL;
+    this->tail=NULL;
+    this->nextPostId=1;
+}
+
+void newPost(string message, string sharewith, int date) {
+    Post* newPost = new Post(message, sharewith, date, nextPostId++);
+
+    if (head == NULL) {
+        head = newPost;
+        tail = newPost;
+    } 
+    else {
+        tail->setNext(newPost);
+        newPost->setPrev(tail);
+        tail = newPost;
+    }
+}
+  void viewPosts() {
+    Post* temp = head;
+    while (temp != NULL) {
+        cout << "Post ID: " << temp->getId() << endl;
+        cout << "Message: " << temp->getMessage() << endl;
+        cout << "Shared with: " << temp->getSharewith() <<endl;
+        cout << "Date: " << temp->getDate() << endl;
+        cout << "--------------------" << endl;
+
+        temp = temp->getNext();
+    }
+}  
+void viewPostsByPrivacy(string privacy) {
+    Post* temp = head;
+    while (temp != NULL) {
+        if (temp->getSharewith() == privacy) {
+            cout << "Post ID: " << temp->getId() << endl;
+            cout << "Message: " << temp->getMessage() <<endl;
+            cout << "Shared with: " << temp->getSharewith() << endl;
+            cout << "Date: " << temp->getDate() << endl;
+            cout << "--------------------" << endl;
+        }
+
+        temp = temp->getNext();
+    }
+}
+void viewPostsByDate(int date) {
+    Post* temp = head;
+    while (temp != NULL) {
+        if (temp->getDate() == date) {
+            cout << "Post ID: " << temp->getId() << endl;
+            cout << "Message: " << temp->getMessage() << endl;
+            cout << "Shared with: " << temp->getSharewith() <<endl;
+            cout << "Date: " << temp->getDate() << endl;
+            cout << "--------------------" << endl;
+        }
+
+        temp = temp->getNext();
+    }
+}
+void editPost(int postId) {
+    Post* temp = head;
+    while (temp != NULL) {
+        if (temp->getId() == postId) {
+            string newMessage;
+            cout << "Enter the new message: ";
+            cin>>newMessage;
+            temp->setMessage(newMessage);
+            cout << "Post edited successfully." << endl;
+            return;
+        }
+
+        temp = temp->getNext();
+    }
+
+    cout << "Post with ID " << postId << " not found." << endl;
+}
+void deletePost(int postId) {
+    Post* temp = head;
+    while (temp != NULL) {
+        if (temp->getId() == postId) {
+            if (temp == head) {
+                head = temp->getNext();
+                if (head != NULL) {
+                    head->setPrev(NULL);
+                }
+            } 
+            else if (temp == tail) {
+                tail = temp->getPrev();
+                if (tail != NULL) {
+                    tail->setNext(NULL);
+                }
+            }
+            else {
+                temp->getPrev()->setNext(temp->getNext());
+                temp->getNext()->setPrev(temp->getPrev());
+            }
+
+            delete temp;
+            cout << "Post deleted successfully." << endl;
+            return;
+        }
+
+        temp = temp->getNext();
+    }
+
+    cout << "Post with ID " << postId << " not found." << endl;
+}
+
+};
+
+
+
+int main() {
+        SocialNetwork socialNetwork;
+
+    int choice;
+
+    do {
+        cout << "Choose an option:"<<endl;
+        cout << "1. New post"<<endl;
+        cout << "2. View posts"<<endl;
+        cout << "3. View posts by privacy"<<endl;
+        cout << "4. View posts by date"<<endl;
+        cout << "5. Edit post"<<endl;
+        cout << "6. Delete post"<<endl;
+        cout << "7. Exit"<<endl;
+        cin >> choice;
+
+        switch (choice) {
+            case 1: {
+                string message, sharewith;
+                int date;
+
+                cout << "Enter message: ";
+                cin>>message;
+                cout << "Enter shared with (Public, Friends, Private): ";
+                cin >> sharewith;
+                cout << "Enter date (day): ";
+                cin >> date;
+
+                socialNetwork.newPost(message, sharewith, date);
+                break;
+            }
+            case 2:
+                socialNetwork.viewPosts();
+                break;
+            case 3: {
+                string privacy;
+                cout << "Enter privacy (Public, Friends, Private): ";
+                cin >> privacy;
+                socialNetwork.viewPostsByPrivacy(privacy);
+                break;
+            }
+            case 4: {
+                int date;
+                cout << "Enter date (day): ";
+                cin >> date;
+                socialNetwork.viewPostsByDate(date);
+                break;
+            }
+            case 5: {
+                int postId;
+                cout << "Enter post ID: ";
+                cin >> postId;
+                socialNetwork.editPost(postId);
+                break;
+            }
+            case 6: {
+                int postId;
+                cout << "Enter post ID: ";
+                cin >> postId;
+                socialNetwork.deletePost(postId);
+                break;
+            }
+            case 7:
+                cout << "Exiting..."<<endl;
+                break;
+            default:
+                cout << "Invalid choice."<<endl;
+        }
+    } while (choice != 7);
+
+
+    return 0;
+}
